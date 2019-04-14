@@ -12,8 +12,8 @@
 ```json
 {
   "aidou": {
-    "greeting": "小姐姐~ 代码写久了，该休息啦~",
-    "title": "你的老公来啦",
+    "greeting": "亲~ 代码写久了，该休息啦~",
+    "title": "你的爱豆来啦",
     "pictures": [
       "https://aidou-image-url"
     ],

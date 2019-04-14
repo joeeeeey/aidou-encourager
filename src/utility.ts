@@ -11,6 +11,10 @@ export class Utility {
     const configPath = `${homedir}/Library/Application Support/Code/User/settings.json`;
     const data = fs.readFileSync(configPath);
     const jsonData = JSON.parse(data);
-    return jsonData.aidou || {};
+    return jsonData.aidou || {
+      greeting: '亲~ 代码写久了，该休息啦~',
+      title: '你的爱豆来啦',
+      reminderViewIntervalInMinutes: 60,
+    };
   }
 }

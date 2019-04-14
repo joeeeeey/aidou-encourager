@@ -4,7 +4,7 @@ import { ReminderView } from './reminderView';
 import { Utility } from './utility';
 
 const getTimeout = () => {
-  const reminderViewIntervalInMinutes = Utility.getAidouConfig().reminderViewIntervalInMinutes || 60;
+  const reminderViewIntervalInMinutes = Utility.getAidouConfig().reminderViewIntervalInMinutes;
   return 1000 * 60 * reminderViewIntervalInMinutes;
 }
 

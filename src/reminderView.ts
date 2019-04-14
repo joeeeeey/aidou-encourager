@@ -3,49 +3,70 @@ import * as vscode from 'vscode';
 import { Utility } from './utility';
 // import * as path from 'path';
 
-const getRandomInt = (max: any) => {
-  return Math.floor(Math.random() * Math.floor(max));
-}
+const getRandomInt = (max: any, exceptIndex: number = -1) => {
+  const randomValue = Math.floor(Math.random() * Math.floor(max));
+  if (exceptIndex === -1) {
+    return randomValue;
+  }
+
+  if (randomValue === exceptIndex) {
+    return randomValue === 0 ? max - 1 : randomValue - 1;
+  }
+
+  return randomValue;
+};
 
 const imageString = (imagePath: string) => {
   return `<img src="${imagePath}">`;
-}
+};
+
+const getHtmlStr = (title: string, greeting: string, imagePath: any) => {
+  return `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${title}</title>
+  </head>
+  <body>
+      <div><h1>${greeting}</h1></div>
+      <div>${imagePath ? imageString(imagePath) : "<p>尚未找到爱豆图片，请在配置文件中增加</p>"}</div>
+  </body>
+  </html>`;
+};
+
 export class ReminderView {
   private static panel: vscode.WebviewPanel | undefined;
+  private static randomIndex: any;
 
   public static show(context: vscode.ExtensionContext) {
+    const aidouConfig = Utility.getAidouConfig();
+    const pictures: Array<string> = aidouConfig.pictures;
+    const greeting: any = aidouConfig.greeting;
+    const title: any = aidouConfig.title;
+
+    this.randomIndex = this.randomIndex !== undefined
+      ? getRandomInt(pictures.length, this.randomIndex) :
+      getRandomInt(pictures.length);
+
+    let imagePath = null;
+
+    if (Array.isArray(pictures) && pictures.length > 0) {
+      imagePath = pictures[this.randomIndex];
+    }
+
+
     if (this.panel) {
       this.panel.reveal();
-    } else {
-      const aidouConfig = Utility.getAidouConfig();
-      const greeting: any = aidouConfig.greeting || '小姐姐~ 代码写久了，该休息啦~';
-      const title: any =  aidouConfig.title || '你的老公来啦';
-      const pictures: Array<string> = aidouConfig.pictures || null;
 
+      this.panel.webview.html = getHtmlStr(title, greeting, imagePath);
+    } else {
       this.panel = vscode.window.createWebviewPanel("aidou", title, vscode.ViewColumn.Two, {
         enableScripts: true,
         retainContextWhenHidden: true,
       });
 
-      // const imagePath = vscode.Uri.file(path.join(context.extensionPath, 'images', `husband${getRandomInt(4)}.jpg`))
-      // .with({ scheme: 'vscode-resource' });
-      let imagePath = null
-      if(Array.isArray(pictures) && pictures.length > 0){
-        imagePath = pictures[getRandomInt(pictures.length)]
-      }
-
-      this.panel.webview.html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title ? title : '你的老公来啦'}</title>
-</head>
-<body>
-    <div><h1>${greeting}</h1></div>
-    <div>${imagePath ? imageString(imagePath) : "<p>无图言屌?</p>"}</div>
-</body>
-</html>`;
+      this.panel.webview.html = getHtmlStr(title, greeting, imagePath);
 
       this.panel.onDidDispose(() => {
         this.panel = undefined;
